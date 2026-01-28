@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>E-Journal Search</title>
+
+<style>
+body {
+  font-family: Georgia, serif;
+  background-color: #fafafa;
+  color: #333;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+/* A–Z bar */
+.az-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 20px 0;
+}
+
+.az-letter {
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: #eaeaea;
+  font-weight: bold;
+  user-select: none;
+}
+
+.az-letter:hover {
+  background: #dcdcdc;
+}
+
+.az-letter.active {
+  background: #1a73e8;
+  color: white;
+}
+
+/* Book list */
+#book-container {
+  margin-top: 20px;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+li {
+  margin: 6px 0;
+}
+
+li span {
+  font-style: italic;
+  font-size: 0.9em;
+  margin-left: 6px;
+  color: #555;
+}
+
+li a {
+  color: #2c3e50;
+  text-decoration: none;
+}
+
+li a:hover {
+  text-decoration: underline;
+  color: #1a73e8;
+}
+</style>
+</head>
+
+<body>
+
+<h1>E-Journal Search</h1>
+
+<div class="az-bar" id="az-bar"></div>
+
+<div id="book-container"></div>
+
+<script>
+/* ✏️ EDIT BOOKS HERE ONLY */
+const books = [
+  { title: "19th-century music", url: "https://www-jstor-org.proxy.lib.sg/journal/19thcenturymusic", remark: "Access available : 1977 - 2019" },
+{ title: "Action research", url: "https://journals.sagepub.com/home/arj", remark: "Access available : 2016 - 2020" },
+{ title: "Afterall : a journal of art, context and enquiry", url: "http://www.journals.uchicago.edu/toc/aft/current", remark: "Access available : 1998 - present" },
+{ title: "American educational research journal", url: "https://www-jstor-org.proxy.lib.sg/journal/amereducresej", remark: "Access available : 1964 - 2019" },
+{ title: "American journal of art therapy", url: "https://www.proquest.com/publication/publications_40839?accountid=12691", remark: "Access available : 1997 - 2002" },
+{ title: "American journal of dance therapy", url: "https://www.proquest.com/publication/54104?accountid=12691", remark: "Access available : 1997 - 2000" },
+{ title: "American music", url: "https://www-jstor-org.proxy.lib.sg/journal/americanmusic", remark: "Access available : 1983 - 2019" },
+{ title: "American music teacher", url: "https://www-jstor-org.proxy.lib.sg/journal/amermusitea", remark: "Access available : 1951 - 2018" },
+{ title: "Animation : an interdisciplinary journal", url: "https://journals.sagepub.com/home/anma", remark: "Access available : 2016 - 2021" },
+{ title: "Animation practice, process & production", url: "http://www.ingentaconnect.com/content/intellect/ap3", remark: "Access available : 2013 and 2019" },
+{ title: "Aperture", url: "https://www-jstor-org.proxy.lib.sg/journal/aperture", remark: "Access available : 1952 - 2019" },
+{ title: "Applied theatre research", url: "http://www.ingentaconnect.com/content/intellect/atr", remark: "Access available : Vol.1 2013 - Vol.8 2020" },
+{ title: "Architectural design (AD)", url: "http://onlinelibrary.wiley.com/journal/10.1002/%28ISSN%291554-2769", remark: "Access available : 2005 - 2021" },
+{ title: "Archives of Asian art", url: "https://www-jstor-org.proxy.lib.sg/journal/archasiaart", remark: "Access available : 1966 - 2017" },
+{ title: "Art & the public sphere", url: "http://www.ingentaconnect.com/content/intellect/aps", remark: "Access available : 2017 - 2020" },
+{ title: "Art, design & communication in higher education", url: "http://www.ingentaconnect.com/content/intellect/adche", remark: " Access available : 2014 - 2015 and 2016 - 2020" },
+{ title: "Art education : the journal of the National Art Education Association", url: "http://www.tandfonline.com/toc/uare20/current", remark: "Access available : 2016 - 2020" },
+{ title: "Art education : the journal of the National Art Education Association", url: "https://www.proquest.com/publication/48133?accountid=12691", remark: "Access available : 1997 - 2019" },
+{ title: "Art journal", url: "https://www.proquest.com/central/publication/40585/citation/AC6613DCA7CC4443PQ/2?decadeSelected=2020%20-%202029&yearSelected=1992&monthSelected=12&issueNameSelected=01992Y12Y01%2423Winter%2B1992%243b%2B%2BVol.%2B51%2B%24284%2429", remark: "Access available : 1992 - 2015" },
+{ title: "Art journal [magazine]", url: "https://www-jstor-org.proxy.lib.sg/journal/artj", remark: "Access available : 1960 - 2020" },
+{ title: "Art therapy : journal of the American Art Therapy Association", url: "https://www.tandfonline.com/toc/uart20/current", remark: "Access available : 1997 - present" },
+{ title: "ArtAsiaPacific = Art and Asia Pacific [Journal]", url: "https://www.proquest.com/central/publication/publications_626468?accountid=12691", remark: "Access available : 2011 - present" },
+{ title: "Artivate: a journal of entrepreneurship in the arts", url: "https://artivate.org/index.php/artivate/index", remark: "" },
+{ title: "Arts & health : an international journal for research, policy, and practice", url: "https://www.tandfonline.com/toc/rahe20/current", remark: "Access available : 2019 - 2021" },
+{ title: "Arts and humanities in higher education ", url: "http://ahh.sagepub.com/", remark: "Access available : 2016 - 2020" },
+{ title: "Asia Pacific journal of counselling and psychotherapy", url: "http://www.tandfonline.com/toc/rapc20/current", remark: "" },
+{ title: "Asia Pacific journal of management: APJM", url: "https://www.proquest.com/publication/publications_30248?accountid=12691", remark: "Access available : 1992 - 2023" },
+{ title: "Asian cinema", url: "http://www.ingentaconnect.com/content/intellect/ac", remark: "Access available : 2013- 2021" },
+{ title: "Asian diasporic visual cultures and the Americas", url: "https://brill.com/view/journals/adva/adva-overview.xml", remark: "Access available : 2015 - present" },
+{ title: "Asian music", url: "https://www-jstor-org.proxy.lib.sg/journal/asianmusic", remark: "Access available : 1968 - 2016" },
+{ title: "Asian theatre journal", url: "https://www-jstor-org.proxy.lib.sg/journal/asiantheatrej", remark: "Access available : 1984 - 2018" },
+{ title: "Australian and New Zealand journal of family therapy", url: "http://onlinelibrary.wiley.com/journal/10.1002/(ISSN)1467-8438", remark: "Access available : 1997 - 2021" },
+{ title: "Body & society", url: "https://journals.sagepub.com/loi/boda?expanded=2010", remark: "Access available : 2018 - 2020" },
+{ title: "British journal of music education (BJME)", url: "https://www.proquest.com/publication/37435?accountid=12691", remark: "Access available : 2001 - 2021" },
+{ title: "British journal of music therapy", url: "https://journals.sagepub.com/home/bjm", remark: "Access available : 1999 - Present" },
+{ title: "British journal of photography", url: "https://www.1854.photography/", remark: "" },
+{ title: "British journal of psychotherapy", url: "http://onlinelibrary.wiley.com/journal/10.1111/(ISSN)1752-0118", remark: "Access available : 1997 - 2021" },
+{ title: "Canadian journal of art therapy", url: "http://www.tandfonline.com/loi/ucat20", remark: "Access available : Vol 11 1997 - Present" },
+{ title: "Canadian journal of music therapy", url: "https://cjmt-rcm.musictherapy.ca/index.php/cjmt-rcm/issue/view/5", remark: "" },
+{ title: "Celebrity studies", url: "https://www.tandfonline.com/toc/rcel20/current", remark: "Access available : 2019 - 2020" },
+{ title: "Choral journal", url: "https://www-jstor-org.proxy.lib.sg/journal/choralj", remark: "Access available : 1959 - 2020" },
+{ title: "Choreographic practices", url: "http://www.ingentaconnect.com/content/intellect/chor", remark: "Access available : 2016 - 2021" },
+{ title: "Cinema journal", url: "https://www-jstor-org.proxy.lib.sg/journal/cinemaj", remark: "Access available : 1966 - 2018" },
+{ title: "College music symposium", url: "https://www-jstor-org.proxy.lib.sg/journal/collmusisymp", remark: "Access available : 1961 - 2021" },
+{ title: "Comparative drama", url: "https://www-jstor-org.proxy.lib.sg/journal/comparativedrama", remark: "Access available : 1967 - 2018" },
+{ title: "Computer music journal", url: "https://www.mitpressjournals.org/loi/comj", remark: "Access available : 2020 - 2024" },
+{ title: "Contemporary Southeast Asia", url: "https://www-jstor-org.proxy.lib.sg/journal/contsoutasia", remark: "Access available : 1979 - 2021" },
+{ title: "Contemporary theatre review", url: "http://www.tandfonline.com/toc/gctr20/current", remark: "Access available : 2011 - present" },
+{ title: "Contributions to music education", url: "https://www-jstor-org.proxy.lib.sg/journal/contmusieduc", remark: "Access available : 1972 - 2020" },
+{ title: "Counselling & psychotherapy review Singapore ", url: "https://www.worldscientific.com/loi/cprs", remark: "" },
+{ title: "Counterpoints", url: "https://www-jstor-org.proxy.lib.sg/journal/counterpoints", remark: "Access available : 1993 - 2018" },
+{ title: "Creative arts in education and therapy (CAET)", url: "https://caet.inspirees.com/", remark: "Access available : 2015 - present" },
+{ title: "Creative industries journal", url: "http://www.tandfonline.com/toc/rcij20/current?nav=tocList", remark: "Access available : 2008 - present" },
+{ title: "Creativity research journal", url: "https://www.tandfonline.com/hcrj", remark: "Access available : 1997 - present" },
+{ title: "Cultural trends", url: "https://www.tandfonline.com/toc/ccut20/current", remark: "Access available : from Volume 8, 1998" },
+{ title: "Curator : the museum journal", url: "http://onlinelibrary.wiley.com/journal/10.1111/%28ISSN%292151-6952", remark: "Access available : 1997 - 2021" },
+{ title: "Dance chronicle", url: "https://www-jstor-org.proxy.lib.sg/journal/dancechronicle", remark: "Access available : 1977 - 2014" },
+{ title: "Dance education in practice", url: "https://www.tandfonline.com/loi/udep20", remark: "Access available : 2019 - 2021" },
+{ title: "Dance research journal", url: "https://www-jstor-org.proxy.lib.sg/journal/danceresearchj", remark: "Access available : 1974 - 2019" },
+{ title: "Dance research journal ", url: "https://www.cambridge.org/core/journals/dance-research-journal", remark: "Access available : 2007 - present" },
+{ title: "Dance research : the journal of the society for dance research", url: "https://www-jstor-org.proxy.lib.sg/journal/dancresejsocidan", remark: "Access available : 1983 - 2018" },
+{ title: "Design and culture", url: "http://www.tandfonline.com/toc/rfdc20/current#.VayVLUX75FQ", remark: "" },
+{ title: "Design ecologies", url: "http://www.ingentaconnect.com/content/intellect/des", remark: "Access available : 2011 - 2024" },
+{ title: "Design issues", url: "http://www.mitpressjournals.org/loi/desi", remark: "Access available : 2000 - 2024" },
+{ title: "Design management review", url: "https://www.proquest.com/publication/42499?accountid=12691", remark: "Access available : Winter 2001 - Winter 2009" },
+{ title: "DMI : journal", url: "http://onlinelibrary.wiley.com/journal/10.1111/(ISSN)1948-7177", remark: "" },
+{ title: "DMI : review", url: "http://onlinelibrary.wiley.com/journal/10.1111/%28ISSN%291948-7169", remark: "Access available : 1997 - 2021" },
+{ title: "Drawing : research, theory, practice", url: "http://www.ingentaconnect.com/content/intellect/drtp", remark: "Access available : 2016 - 2020" },
+{ title: "Early music", url: "https://www-jstor-org.proxy.lib.sg/journal/earlymusic", remark: "Access available : 1973 - 2016" },
+{ title: "EASTAP - European Association for the Study of Theatre and Performance", url: "https://journal.eastap.com/", remark: "Access available : Issues 2 and 3 only" },
+{ title: "Educational evaluation and policy analysis", url: "https://www-jstor-org.proxy.lib.sg/journal/educevalpolianal", remark: "Access available : 1979 - 2018" },
+{ title: "Educational researcher", url: "https://www-jstor-org.proxy.lib.sg/journal/educrese", remark: "Access available : 1966 - 2016" },
+{ title: "Educational theatre journal", url: "https://www-jstor-org.proxy.lib.sg/journal/eductheaj", remark: "Access available : 1949 - 1978" },
+{ title: "Ethnomusicology", url: "https://www-jstor-org.proxy.lib.sg/journal/ethnomusicology", remark: "Access available : 1953 - 2021" },
+{ title: "Fashion practice: the journal of design, creative process & fashion", url: "http://www.tandfonline.com/toc/rffp20/current#.VayWOEX75FQ", remark: "" },
+{ title: "Fashion theory : the journal of dress, body & culture", url: "http://www.tandfonline.com/toc/rfft20/current#.VayXNkX75FQ", remark: "" },
+{ title: "Film comment", url: "https://www-jstor-org.proxy.lib.sg/journal/filmcomment", remark: "Access available : 1962 - 2018" },
+{ title: "Film criticism", url: "https://www-jstor-org.proxy.lib.sg/journal/filmcriticism", remark: "Access available : 1976 - 2015" },
+{ title: "Film, fashion & consumption", url: "http://www.ingentaconnect.com/content/intellect/ffc", remark: "Access available : 2013 - 2020" },
+{ title: "Film history", url: "https://www-jstor-org.proxy.lib.sg/journal/filmhistory", remark: "Access available : 1987 - 2021" },
+{ title: "Film quarterly", url: "https://www-jstor-org.proxy.lib.sg/journal/filmquarterly", remark: "Access available : 1958 - 2018" },
+{ title: "Fourth genre: explorations in nonfiction", url: "https://www-jstor-org.proxy.lib.sg/journal/fourthgenre", remark: "3 years embargo" },
+{ title: "Gastronomica : the journal of critical food studies (GFC)", url: "https://online.ucpress.edu/gastronomica", remark: "" },
+{ title: "Global hip hop studies", url: "https://www.ingentaconnect.com/content/intellect/ghhs", remark: "Access available : 2020 - 2021" },
+{ title: "Group analysis : the international journal of group analytic psychotherapy", url: "http://gaq.sagepub.com/", remark: "Access available : 2013 - 2020" },
+{ title: "International journal of art and design education", url: "https://onlinelibrary.wiley.com/loi/14768070/year/2019", remark: "Access available : 2019 (Volume 38) and 2020 (Volume 39)" },
+{ title: "International journal of art therapy", url: "https://www.tandfonline.com/toc/rart20/current", remark: "Access available : 1996 - present" },
+{ title: "International journal of arts management", url: "https://www.proquest.com/publication/26212?accountid=12691", remark: "Access available : 2002 - 2022" },
+{ title: "International journal of cultural policy", url: "https://www.proquest.com/central/publication/publications_105498?accountid=12691", remark: "Access available : 2013 - 2018" },
+{ title: "International journal of cultural studies", url: "https://journals.sagepub.com/loi/icsa/group/d2010.y2018", remark: "Access available : 2013 - 2018" },
+{ title: "International journal of education through art", url: "http://www.ingentaconnect.com/content/intellect/eta", remark: "Access available : 2017- 2020" },
+{ title: "International journal of heritage studies", url: "http://www.tandfonline.com/toc/rjhs20/current", remark: "Access available : 2017 - 2020" },
+{ title: "International journal of music business research", url: "https://sciendo.com/journal/IJMBR?tab=aims-scope", remark: "" },
+{ title: "International journal of performance art and digital media", url: "https://www.tandfonline.com/loi/rpdm20", remark: "" },
+{ title: "International journal of sexual health", url: "https://www.tandfonline.com/loi/wijs20", remark: "Access available : 2020 - 2021" },
+{ title: "International journal of technology and design education", url: "https://www.proquest.com/central/publication/publications_55387?accountid=12691", remark: "Access available : 1997 - 2020" },
+{ title: "JAWS : Journal of arts writing by students", url: "http://www.ingentaconnect.com/content/intellect/jaws", remark: "Access available : 2017 - 2020" },
+{ title: "Jazz perspectives", url: "https://www.tandfonline.com/rjaz", remark: "Access available : 2017 - present" },
+{ title: "Jazz research journal", url: "https://journal.equinoxpub.com/JAZZ/issue/view/1914", remark: "Access available : 2004 - present" },
+{ title: "Journal of adaptation in film & performance", url: "https://www.ingentaconnect.com/content/intellect/jafp", remark: "Access available : 2020 only" },
+{ title: "Journal of arts & communities", url: "http://www.ingentaconnect.com/content/intellect/jaac", remark: "Access available : 2020 only" },
+{ title: "Journal of consumer behaviour", url: "http://onlinelibrary.wiley.com/journal/10.1002/%28ISSN%291479-1838", remark: "Access available : 2001 - 2020" },
+{ title: "Journal of contemporary painting", url: "http://www.ingentaconnect.com/content/intellect/jcp", remark: "Access available : 2015 - 2020" },
+{ title: "Journal of creative communications", url: "http://crc.sagepub.com/", remark: "" },
+{ title: "Journal of curatorial studies", url: "http://www.ingentaconnect.com/content/intellect/jcs", remark: "Access available : 2017 - 2020" },
+{ title: "Journal of dance & somatic practices", url: "http://www.ingentaconnect.com/content/intellect/jdsp", remark: "Access available : 2015 - 2023" },
+{ title: "Journal of dance education", url: "https://www.tandfonline.com/loi/ujod20", remark: "" },
+{ title: "Journal of design history", url: "http://jdh.oxfordjournals.org/", remark: "Access available : 2003 - 2024" },
+{ title: "Journal of educational and behavioral statistics", url: "https://www-jstor-org.proxy.lib.sg/journal/jeducbehastat", remark: "Access available : 1994 - 2018" },
+{ title: "Journal of educational measurement", url: "https://www-jstor-org.proxy.lib.sg/journal/jeducmeas?refreqid=browse-ui%3A7e26f4d2c8385c561d26c890587f759f", remark: "Access available : 1964 - 2016" },
+{ title: "Journal of film and video", url: "https://www-jstor-org.proxy.lib.sg/journal/jfilmvideo?refreqid=browse-ui%3Add5ec6bf3d79c6c2c92f8cfbfc3e1106", remark: "Access available : 1984 - 2018" },
+{ title: "Journal of further and higher education", url: "http://www.tandfonline.com/CJFH", remark: "" },
+{ title: "Journal of global fashion marketing", url: "http://www.tandfonline.com/loi/rgfm20?open=5&repitition=0#vol_5", remark: "" },
+{ title: "Journal of graphic novels and comics", url: "http://www.tandfonline.com/loi/rcom20", remark: "" },
+{ title: "Journal of higher education policy and management", url: "http://www.tandfonline.com/CJHE", remark: "" },
+{ title: "Journal of homosexuality", url: "https://www.proquest.com/central/publication/46991?accountid=12691", remark: "Access available : Oct 31, 1974 (Vol. 1, no. 1) - present" },
+{ title: "Journal of interdisciplinary voice studies", url: "https://www.ingentaconnect.com/content/intellect/jivs", remark: "Access available : 2020 only" },
+{ title: "Journal of interior design", url: "https://onlinelibrary.wiley.com/journal/19391668", remark: "Access available : 1997 - 2021" },
+{ title: "Journal of LGBT issues in counseling ", url: "https://www.tandfonline.com/loi/wlco20", remark: "Access available : 2020 - 2021" },
+{ title: "Journal of mixed methods research", url: "http://mmr.sagepub.com/", remark: "" },
+{ title: "Journal of music, technology, and education ", url: "https://www.ingentaconnect.com/content/intellect/jmte", remark: "Access available : 2020 - 2021" },
+{ title: "Journal of music theory", url: "https://www-jstor-org.proxy.lib.sg/journal/jmusictheory?refreqid=browse-ui%3Afc7448c58f96bc632e97714e1de09fce", remark: "Access available : 1957 - 2016" },
+{ title: "Journal of music therapy", url: "https://academic.oup.com/jmt", remark: "Access available : 1996 - present" },
+{ title: "Journal of popular culture", url: "https://www.proquest.com/publication/34704?parentSessionId=%2FqbUZgCVm5e9nX9vIIYNwx7cJeOpArBGGVptZlTjjks%3D&accountid=12691", remark: "" },
+{ title: "Journal of popular music education", url: "http://www.ingentaconnect.com/content/intellect/jpme", remark: "Access available : 2017 - 2021" },
+{ title: "Journal of research in music education", url: "http://journals.sagepub.com/home/jrm", remark: "" },
+{ title: "Journal of research in music education", url: "https://www-jstor-org.proxy.lib.sg/journal/jresemusieduc", remark: "Access available : 1953 - 2018" },
+{ title: "Journal of screenwriting", url: "http://www.ingentaconnect.com/content/intellect/josc", remark: "Access available : 2013 - 2021" },
+{ title: "Journal of sound and music in games", url: "https://online.ucpress.edu/jsmg", remark: "" },
+{ title: "Journal of Southeast Asian studies", url: "https://www-proquest-com.proxy.lib.sg/publication/31973?accountid=12691", remark: "Access available : 2001 - present (delayed 1 year)" },
+{ title: "Journal of Southeast Asian studies", url: "https://www-jstor-org.proxy.lib.sg/journal/jsoutasiastud", remark: "Access available : 1970 - 2017 (JSTOR)" },
+{ title: "Journal of teacher education", url: "http://jte.sagepub.com", remark: "" },
+{ title: "Journal of textile design research and practice", url: "http://www.tandfonline.com/toc/rftd20/current#.VayX-kX75FQ", remark: "" },
+{ title: "Journal of the American musicological society", url: "https://www-jstor-org.proxy.lib.sg/journal/jamermusisoci", remark: "Access available : 1948 - 2018" },
+{ title: "Journal of visual arts practice", url: "http://www.tandfonline.com/toc/rjvp20/current#.VNMZwsamSt8", remark: "" },
+{ title: "Journal of visual culture", url: "http://journals.sagepub.com/loi/vcua?expanded=2010", remark: "Access available : Vol.17 Iss.1 2018 - Vol.20 Iss.1 2021" },
+{ title: "Journal of writing in creative practice", url: "http://www.ingentaconnect.com/content/intellect/jwcp", remark: "" },
+{ title: "Learning disabilities research & practice", url: "http://onlinelibrary.wiley.com/journal/10.1111/(ISSN)1540-5826", remark: "" },
+{ title: "Leonardo", url: "https://www-jstor-org.proxy.lib.sg/journal/leonardo", remark: "Access available : 1968 - 2019" },
+{ title: "Leonardo music journal", url: "https://www-jstor-org.proxy.lib.sg/journal/leonardomusicj", remark: "Access available : 1991 - 2019" },
+{ title: "Literature/film quarterly", url: "https://www-jstor-org.proxy.lib.sg/journal/litefilmquar", remark: "Access available : 1973 - 2016" },
+{ title: "Media culture and society", url: "http://mcs.sagepub.com/", remark: "" },
+{ title: "Metal music studies", url: "https://www.ingentaconnect.com/content/intellect/mms/", remark: "" },
+{ title: "Music analysis", url: "https://www-jstor-org.proxy.lib.sg/journal/musicanalysis", remark: "Access available : 1982 - 2016" },
+{ title: "Music & letters", url: "https://www-jstor-org.proxy.lib.sg/journal/musicletters", remark: "Access available : 1920 - 2016" },
+{ title: "Music and medicine: an interdisciplinary journal", url: "https://mmd.iammonline.com/index.php/musmed", remark: "" },
+{ title: "Music educators journal", url: "https://www-jstor-org.proxy.lib.sg/journal/musiceducatorsj", remark: "Access available : 1934 - 2018" },
+{ title: "Music perception : an interdisciplinary journal", url: "https://online.ucpress.edu/mp/issue/41/5", remark: "Access available : 1983 - Present" },
+{ title: "Music theory spectrum", url: "https://www-jstor-org.proxy.lib.sg/journal/musitheospec", remark: "Access available : 1979 - 2018" },
+{ title: "Music therapy perspectives ", url: "https://academic.oup.com/mtp", remark: "Access available : 1996 - Present" },
+{ title: "NAEA news ", url: "http://www.tandfonline.com/toc/unan20/current", remark: "" },
+{ title: "New writing : the international journal for the practice and theory of creative writing", url: "http://www.tandfonline.com/toc/rmnw20/current", remark: "" },
+{ title: "Non-profit and voluntary sector quarterly", url: "http://nvs.sagepub.com/", remark: "Access available : 2010 - 2020" },
+{ title: "Nordic journal of music therapy", url: "https://www.tandfonline.com/journals/rnjm20", remark: "Access available : 1997 - Present" },
+{ title: "October [Journal]", url: "https://www-jstor-org.proxy.lib.sg/journal/october", remark: "Access available : 1976 - 2019" },
+{ title: "October [Journal]", url: "http://www.mitpressjournals.org/loi/octo", remark: "Access available : 2002 - 2022" },
+{ title: "Oxford art journal", url: "http://oaj.oxfordjournals.org/", remark: "" },
+{ title: "PAJ : a journal of performance and art", url: "http://www.mitpressjournals.org/loi/pajj", remark: "Access available : 2003 - 2024" },
+{ title: "Pedagogies : an international journal", url: "https://www.tandfonline.com/loi/hped20", remark: "Access available : 2011 - 2021" },
+{ title: "Performance research", url: "http://www.tandfonline.com/RPRS", remark: "Access available : 2011 - 2024" },
+{ title: "Performing arts journal", url: "https://www-jstor-org.proxy.lib.sg/journal/performingartsj", remark: "Access available : 1976 - 1997" },
+{ title: "Performing ethos : international journal of ethics in theatre and performance", url: "https://www.ingentaconnect.com/content/intellect/peet", remark: "Access available : 2020 - 2021" },
+{ title: "Perspectives of new music", url: "https://www-jstor-org.proxy.lib.sg/journal/persnewmusi", remark: "Access available : 1962 - 2014" },
+{ title: "Philosophy of music education review", url: "https://www-jstor-org.proxy.lib.sg/journal/philmusieducrevi", remark: "Access available : 1993 - 2018" },
+{ title: "Popular music", url: "https://www-jstor-org.proxy.lib.sg/journal/popularmusic", remark: "Access available : 1988 - 2016" },
+{ title: "Project muse journals", url: "https://about.muse.jhu.edu/muse/journals/all/", remark: "" },
+{ title: "Psychoanalytic psychotherapy", url: "https://www.proquest.com/central/publication/436419/citation/CFF7419F44BE4C0APQ/2?accountid=12691", remark: "Access available : 03/01/2003 - present" },
+{ title: "Psychology and psychotherapy : theory, research and practice", url: "http://onlinelibrary.wiley.com/journal/10.1111/(ISSN)2044-8341", remark: "" },
+{ title: "Psychology of music", url: "https://journals.sagepub.com/home/pom", remark: "Access available : 1999 - 2024" },
+{ title: "Punk & post punk", url: "https://www.ingentaconnect.com/content/intellect/punk", remark: "Access available : 2020 - 2021" },
+{ title: "QED : a journal in GLBTQ worldmaking", url: "https://www-jstor-org.proxy.lib.sg/journal/qed?refreqid=browse-ui%3Ad57c684b8c6b6143aab70fecf719abe4", remark: "Access available : 2013 - 2018" },
+{ title: "Qualitative inquiry", url: "http://qix.sagepub.com/", remark: "" },
+{ title: "Qualitative research in psychology", url: "http://www.tandfonline.com/UQRP", remark: "" },
+{ title: "Quality in higher education", url: "http://www.tandfonline.com/toc/cqhe20/current", remark: "" },
+{ title: "Research in dance education", url: "https://www.tandfonline.com/loi/crid20", remark: "" },
+{ title: "Research in drama education", url: "http://www.tandfonline.com/CRDE", remark: "Access available : 2011 - 2024" },
+{ title: "Research studies in music education", url: "https://journals.sagepub.com/home/RSM", remark: "Access available : 1999 - 2024" },
+{ title: "Review of educational research ", url: "http://rer.sagepub.com", remark: "" },
+{ title: "Review of research in education", url: "https://www-jstor-org.proxy.lib.sg/journal/revireseeduc", remark: "Access available : 1973 - 2018" },
+{ title: "Scene", url: "http://www.ingentaconnect.com/content/intellect/scene", remark: "" },
+{ title: "Sexuality research and social policy ", url: "https://www.proquest.com/publication/75954?accountid=12691", remark: "Access available : 2004 - 2020" },
+{ title: "Shakespeare bulletin", url: "https://www-jstor-org.proxy.lib.sg/journal/shakbull", remark: "Access available : 1983 - 2016" },
+{ title: "Short film studies", url: "http://www.ingentaconnect.com/content/intellect/sfs", remark: "Access available : 2017 - 2021" },
+{ title: "Southeast of now : directions in contemporary and modern art in Asia", url: "https://muse.jhu.edu/journal/716", remark: "" },
+{ title: "Stanislavski studies", url: "https://www.tandfonline.com/toc/rfst20/current", remark: "" },
+{ title: "Studies in art education", url: "https://www.proquest.com/publication/48138?accountid=12691", remark: "Access available : 1997 - 2019" },
+{ title: "Studies in art education", url: "http://www.tandfonline.com/loi/usae20", remark: "Access available : 2016 - 2020" },
+{ title: "Studies in costume & performance", url: "https://www.ingentaconnect.com/content/intellect/scp", remark: "Access available : 2020 only" },
+{ title: "Studies in musical theatre", url: "http://www.ingentaconnect.com/content/intellect/smt", remark: "Access available : Vol.6 2012 - 2022" },
+{ title: "Taylor & Francis online journals", url: "https://www.tandfonline.com/topic/allsubjects/ar?ConceptID=4250&startPage=&access=user&target=titleSearch&content=title", remark: "" },
+{ title: "TDR : the drama review", url: "http://www.mitpressjournals.org/loi/dram", remark: "Access available : Vol.54 2010 - Vol.64 2020" },
+{ title: "TDR : the drama review", url: "https://www.cambridge.org/core/journals/the-drama-review", remark: "Access available : Vol. 65 2021 - Present" },
+{ title: "TDR : the drama review", url: "https://www-jstor-org.proxy.lib.sg/journal/tdr1988", remark: "Access available : Vol. 32 1988 - Vol. 60 2019" },
+{ title: "TDR : the drama review", url: "https://www-jstor-org.proxy.lib.sg/journal/tdr19671968", remark: "Access available : Vol. 12 No.1 1967 - Vol.12 No.2 1968" },
+{ title: "Teaching artist journal", url: "http://www.tandfonline.com/toc/htaj20/current#.UygHwiTRfbs", remark: "Access available: 2014 - 2023" },
+{ title: "Teaching in higher education", url: "http://www.tandfonline.com/CTHE", remark: "" },
+{ title: "Technoetic arts : a journal of speculative research", url: "http://www.ingentaconnect.com/content/intellect/ta", remark: "Access available : 2017 - 2020" },
+{ title: "Text and performance quarterly", url: "http://www.tandfonline.com/RTPQ", remark: "Access available : 2011 - 2021" },
+{ title: "Textile : cloth and culture", url: "http://www.tandfonline.com/toc/rftx20/current#.Vaybz0X75FQ", remark: "" },
+{ title: "The arts in psychotherapy", url: "https://www.sciencedirect.com/journal/the-arts-in-psychotherapy", remark: "Access available : 1980 - present" },
+{ title: "The Brown University child and adolescent behavior letter", url: "https://onlinelibrary.wiley.com/journal/15567575", remark: "" },
+{ title: "The journal of aesthetic education", url: "https://www-jstor-org.proxy.lib.sg/journal/jaesteduc", remark: "Access available : 1966 - 2018" },
+{ title: "The journal of arts management, law, and society", url: "https://www.tandfonline.com/toc/vjam20/current", remark: "Access available : 1997 (Vol.26 Iss.4) - present" },
+{ title: "The moving image", url: "https://www-jstor-org.proxy.lib.sg/journal/movingimage", remark: "Access available : 2001 - 2018" },
+{ title: "The musical quarterly", url: "https://www-jstor-org.proxy.lib.sg/journal/musicalquarterly", remark: "Access available : 1915 - 2016" },
+{ title: "The musical times", url: "https://www-jstor-org.proxy.lib.sg/journal/musicaltimes", remark: "Access available : 1904 - 2018" },
+{ title: "The national teaching & learning forum", url: "http://onlinelibrary.wiley.com/journal/10.1002/(ISSN)2166-3327", remark: "" },
+{ title: "The soundtrack", url: "https://www.ingentaconnect.com/content/intellect/ts", remark: "" },
+{ title: "The Tulane drama review", url: "https://www-jstor-org.proxy.lib.sg/journal/tuladramrevi", remark: "Access available : 1957 - 1967" },
+{ title: "The world of music", url: "https://www-jstor-org.proxy.lib.sg/journal/worldofmusic", remark: "Access available : 1957 - 2021" },
+{ title: "Theatre and performance design", url: "https://www.tandfonline.com/journals/rdes20", remark: "" },
+{ title: "Theatre, dance and performance training", url: "http://www.tandfonline.com/RTDP", remark: "" },
+{ title: "Theatre journal", url: "https://www-jstor-org.proxy.lib.sg/journal/theatrej", remark: "Access available : 1979 - 2016" },
+{ title: "Theatre research international", url: "https://www.cambridge.org/core/journals/theatre-research-international", remark: "" },
+{ title: "Theory and research in education", url: "http://tre.sagepub.com/", remark: "" },
+{ title: "Third text", url: "http://www.tandfonline.com/CTTE", remark: "Access from 2010 - 2021" },
+{ title: "Visual inquiry", url: "http://www.ingentaconnect.com/content/intellect/viq", remark: "Access available : 2013 - 2021" },
+{ title: "Women & performance : a journal of feminist theory", url: "https://www.tandfonline.com/toc/rwap20/current", remark: "Access available : 2011 - present" },
+{ title: "World art journal", url: "https://www.tandfonline.com/loi/rwor20", remark: "" },
+{ title: "Yearbook for traditional music", url: "https://www-jstor-org.proxy.lib.sg/journal/yeartradmusi", remark: "Access available : 1981 - 2017" },
+{ title: "Yishu : journal of contemporary Chinese art", url: "http://yishu-online.com/shopping-cart/login/", remark: "" }
+  /* ➕ Add up to 500+ books here */
+];
+/* ✏️ STOP EDITING HERE */
+
+const grouped = {};
+books.forEach(book => {
+  const clean = book.title.replace(/^(A |An |The )/i, "");
+  const letter = clean[0].toUpperCase();
+  if (!grouped[letter]) grouped[letter] = [];
+  grouped[letter].push(book);
+});
+
+const azBar = document.getElementById("az-bar");
+const container = document.getElementById("book-container");
+
+Object.keys(grouped).sort().forEach(letter => {
+  const span = document.createElement("div");
+  span.className = "az-letter";
+  span.textContent = letter;
+
+  span.addEventListener("click", () => {
+    document.querySelectorAll(".az-letter").forEach(l => l.classList.remove("active"));
+    span.classList.add("active");
+
+    container.innerHTML = "";
+
+    const ul = document.createElement("ul");
+    grouped[letter]
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .forEach(book => {
+        const li = document.createElement("li");
+
+        const a = document.createElement("a");
+        a.href = book.url;
+        a.textContent = book.title;
+        a.target = "_blank";
+        li.appendChild(a);
+
+        if (book.remark) {
+          const s = document.createElement("span");
+          s.textContent = " — " + book.remark;
+          li.appendChild(s);
+        }
+
+        ul.appendChild(li);
+      });
+
+    container.appendChild(ul);
+  });
+
+  azBar.appendChild(span);
+});
+</script>
+
+</body>
+</html>
